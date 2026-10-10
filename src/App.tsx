@@ -11,7 +11,7 @@ import { SimulationControls } from './components/SimulationControls';
 import { InspectorModal } from './components/InspectorModal';
 import { MissionsPanel } from './components/MissionsPanel';
 import { TeacherGuideModal } from './components/TeacherGuideModal';
-import { AiGeneratorModal } from './components/AiGeneratorModal';
+import { OfflineDownloadModal } from './components/OfflineDownloadModal';
 import { Header } from './components/Header';
 import { soundFx } from './utils/audio';
 import {
@@ -43,7 +43,7 @@ export default function App() {
   const [selectedGrade, setSelectedGrade] = useState<string>('all');
   const [activeSideTab, setActiveSideTab] = useState<'controls' | 'missions' | 'info'>('controls');
   const [isTeacherGuideOpen, setIsTeacherGuideOpen] = useState<boolean>(false);
-  const [isAiGeneratorOpen, setIsAiGeneratorOpen] = useState<boolean>(false);
+  const [isOfflineModalOpen, setIsOfflineModalOpen] = useState<boolean>(false);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [snapshotFlash, setSnapshotFlash] = useState<boolean>(false);
 
@@ -79,11 +79,6 @@ export default function App() {
 
   const handleSelectSimulation = (sim: SimulationDef) => {
     setActiveSimulation(sim);
-  };
-
-  const handleSimulationGenerated = (newSim: SimulationDef) => {
-    setSimulationsList((prev) => [newSim, ...prev]);
-    setActiveSimulation(newSim);
   };
 
   const handleToggleFullscreen = () => {
@@ -122,8 +117,8 @@ export default function App() {
         onSelectSimulation={handleSelectSimulation}
         selectedGrade={selectedGrade}
         onSelectGrade={setSelectedGrade}
-        onOpenAiGenerator={() => setIsAiGeneratorOpen(true)}
         onOpenTeacherGuide={() => setIsTeacherGuideOpen(true)}
+        onOpenOfflineModal={() => setIsOfflineModalOpen(true)}
         isFullscreen={isFullscreen}
         onToggleFullscreen={handleToggleFullscreen}
         onTakeSnapshot={handleTakeSnapshot}
@@ -347,7 +342,23 @@ export default function App() {
                       : 'bg-slate-800/80 border-slate-700/80 text-slate-300 hover:text-white hover:bg-slate-700'
                   }`}
                 >
-                  <span>{sim.id === 'ciclo-agua' ? '💧' : sim.id === 'sistema-solar' ? '🪐' : sim.id === 'fotosintesis' ? '🌱' : sim.id === 'volcan-tierra' ? '🌋' : sim.id === 'magnetismo' ? '🧲' : '⚙️'}</span>
+                  <span>
+                    {sim.id === 'ciclo-agua'
+                      ? '💧'
+                      : sim.id === 'sistema-solar'
+                      ? '🪐'
+                      : sim.id === 'fotosintesis'
+                      ? '🌱'
+                      : sim.id === 'volcan-tierra'
+                      ? '🌋'
+                      : sim.id === 'magnetismo'
+                      ? '🧲'
+                      : sim.id === 'maquinas-simples'
+                      ? '⚙️'
+                      : sim.id === 'arcoiris'
+                      ? '🌈'
+                      : '⛵'}
+                  </span>
                   <span className="truncate max-w-[120px]">{sim.title.split(' ')[1] || sim.title}</span>
                 </button>
               ))}
@@ -370,11 +381,10 @@ export default function App() {
         onClose={() => setIsTeacherGuideOpen(false)}
       />
 
-      {/* AI Automated Simulation Generator Modal */}
-      <AiGeneratorModal
-        isOpen={isAiGeneratorOpen}
-        onClose={() => setIsAiGeneratorOpen(false)}
-        onSimulationGenerated={handleSimulationGenerated}
+      {/* Offline LAN Download Modal */}
+      <OfflineDownloadModal
+        isOpen={isOfflineModalOpen}
+        onClose={() => setIsOfflineModalOpen(false)}
       />
     </div>
   );

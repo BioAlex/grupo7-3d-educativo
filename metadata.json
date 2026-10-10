@@ -2,5 +2,7 @@
   "name": "SimulaCiencia 3D",
   "description": "Herramienta interactiva de generación automatizada de simulaciones 3D para la enseñanza de ciencias en colegios de nivel primario.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

@@ -2,13 +2,13 @@ import React from 'react';
 import { SimulationDef, GradeLevel } from '../types/simulation';
 import { soundFx } from '../utils/audio';
 import {
-  Wand2,
   BookOpen,
   Maximize2,
   Minimize2,
   Camera,
   Layers,
   ChevronDown,
+  Download,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -17,8 +17,8 @@ interface HeaderProps {
   onSelectSimulation: (simulation: SimulationDef) => void;
   selectedGrade: string;
   onSelectGrade: (grade: string) => void;
-  onOpenAiGenerator: () => void;
   onOpenTeacherGuide: () => void;
+  onOpenOfflineModal: () => void;
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
   onTakeSnapshot: () => void;
@@ -30,8 +30,8 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectSimulation,
   selectedGrade,
   onSelectGrade,
-  onOpenAiGenerator,
   onOpenTeacherGuide,
+  onOpenOfflineModal,
   isFullscreen,
   onToggleFullscreen,
   onTakeSnapshot,
@@ -143,22 +143,23 @@ export const Header: React.FC<HeaderProps> = ({
             soundFx.playClick();
             onOpenTeacherGuide();
           }}
-          className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white font-bold text-xs transition-colors flex items-center gap-1.5"
+          className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-colors flex items-center gap-1.5 shadow-md shadow-indigo-600/20"
         >
-          <BookOpen className="w-4 h-4 text-indigo-400" />
+          <BookOpen className="w-4 h-4 text-white" />
           <span className="hidden sm:inline">Guía Docente</span>
         </button>
 
-        {/* AI Generator Button */}
+        {/* Offline Download / LAN Export */}
         <button
           onClick={() => {
             soundFx.playClick();
-            onOpenAiGenerator();
+            onOpenOfflineModal();
           }}
-          className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-extrabold text-xs shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-1.5"
+          className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs transition-colors flex items-center gap-1.5 shadow-md shadow-emerald-600/25"
+          title="Descargar paquete completo para usar en computadoras del colegio sin internet"
         >
-          <Wand2 className="w-4 h-4 fill-current" />
-          <span>¡Nueva Simulación IA!</span>
+          <Download className="w-4 h-4 text-white" />
+          <span>Descargar Offline (.ZIP)</span>
         </button>
       </div>
     </header>
