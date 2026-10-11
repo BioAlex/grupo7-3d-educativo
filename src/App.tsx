@@ -11,6 +11,7 @@ import { SimulationControls } from './components/SimulationControls';
 import { InspectorModal } from './components/InspectorModal';
 import { MissionsPanel } from './components/MissionsPanel';
 import { TeacherGuideModal } from './components/TeacherGuideModal';
+import { InteractiveQuizModal } from './components/InteractiveQuizModal';
 import { Header } from './components/Header';
 import { soundFx } from './utils/audio';
 import {
@@ -42,6 +43,7 @@ export default function App() {
   const [selectedGrade, setSelectedGrade] = useState<string>('all');
   const [activeSideTab, setActiveSideTab] = useState<'controls' | 'missions' | 'info'>('controls');
   const [isTeacherGuideOpen, setIsTeacherGuideOpen] = useState<boolean>(false);
+  const [isQuizOpen, setIsQuizOpen] = useState<boolean>(false);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [snapshotFlash, setSnapshotFlash] = useState<boolean>(false);
 
@@ -116,6 +118,7 @@ export default function App() {
         selectedGrade={selectedGrade}
         onSelectGrade={setSelectedGrade}
         onOpenTeacherGuide={() => setIsTeacherGuideOpen(true)}
+        onOpenQuiz={() => setIsQuizOpen(true)}
         isFullscreen={isFullscreen}
         onToggleFullscreen={handleToggleFullscreen}
         onTakeSnapshot={handleTakeSnapshot}
@@ -247,7 +250,36 @@ export default function App() {
             )}
 
             {activeSideTab === 'missions' && (
-              <MissionsPanel missions={activeSimulation.missions} />
+              <div className="space-y-4">
+                {/* Interactive Quiz Direct Launch Banner */}
+                <div
+                  onClick={() => {
+                    soundFx.playClick();
+                    setIsQuizOpen(true);
+                  }}
+                  className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/20 via-rose-500/20 to-indigo-500/20 border border-amber-500/40 hover:border-amber-400 cursor-pointer transition-all flex items-center justify-between group shadow-lg"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-xl shadow-md shadow-amber-500/30 group-hover:scale-110 transition-transform">
+                      🎯
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-black text-white group-hover:text-amber-300 transition-colors flex items-center gap-1.5">
+                        <span>Desafío Quiz de Ciencias</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40">
+                          ¡Con Diploma!
+                        </span>
+                      </h4>
+                      <p className="text-[11px] text-slate-300">
+                        Preguntas interactivas con pistas, medallas y diploma escolar imprimible.
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-amber-400 group-hover:translate-x-1 transition-transform shrink-0" />
+                </div>
+
+                <MissionsPanel missions={activeSimulation.missions} />
+              </div>
             )}
 
             {activeSideTab === 'info' && (
@@ -304,6 +336,18 @@ export default function App() {
                     ))}
                   </div>
                 </div>
+
+                {/* Interactive Quiz trigger in info tab */}
+                <button
+                  onClick={() => {
+                    soundFx.playClick();
+                    setIsQuizOpen(true);
+                  }}
+                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500/20 via-rose-500/20 to-amber-500/20 hover:from-amber-500/30 hover:to-rose-500/30 border border-amber-500/40 text-amber-300 font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md"
+                >
+                  <Award className="w-4 h-4 text-amber-400" />
+                  <span>Realizar Quiz Interactivo de este Tema</span>
+                </button>
 
                 {/* Teacher guide button trigger */}
                 <button
@@ -376,6 +420,14 @@ export default function App() {
         simulation={activeSimulation}
         isOpen={isTeacherGuideOpen}
         onClose={() => setIsTeacherGuideOpen(false)}
+      />
+
+      {/* Interactive Quiz Modal */}
+      <InteractiveQuizModal
+        isOpen={isQuizOpen}
+        onClose={() => setIsQuizOpen(false)}
+        currentTopicId={activeSimulation.id}
+        currentTopicTitle={activeSimulation.title}
       />
     </div>
   );

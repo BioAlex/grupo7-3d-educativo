@@ -8,6 +8,7 @@ import {
   Camera,
   Layers,
   ChevronDown,
+  Award,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -17,6 +18,7 @@ interface HeaderProps {
   selectedGrade: string;
   onSelectGrade: (grade: string) => void;
   onOpenTeacherGuide: () => void;
+  onOpenQuiz: () => void;
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
   onTakeSnapshot: () => void;
@@ -29,6 +31,7 @@ export const Header: React.FC<HeaderProps> = ({
   selectedGrade,
   onSelectGrade,
   onOpenTeacherGuide,
+  onOpenQuiz,
   isFullscreen,
   onToggleFullscreen,
   onTakeSnapshot,
@@ -110,6 +113,19 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Action Buttons */}
       <div className="flex items-center gap-2">
+        {/* Interactive Quiz Button */}
+        <button
+          onClick={() => {
+            soundFx.playClick();
+            onOpenQuiz();
+          }}
+          title="Abrir Quiz Científico Interactivo con Diploma y Medallas"
+          className="px-3 sm:px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-400 hover:to-rose-400 text-slate-950 font-black text-xs transition-all flex items-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95"
+        >
+          <Award className="w-4 h-4 text-slate-950" />
+          <span>Quiz Interactivo</span>
+        </button>
+
         {/* Take Screenshot */}
         <button
           onClick={() => {
@@ -117,7 +133,7 @@ export const Header: React.FC<HeaderProps> = ({
             onTakeSnapshot();
           }}
           title="Capturar foto del experimento"
-          className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+          className="p-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-white transition-colors"
         >
           <Camera className="w-4 h-4" />
         </button>
@@ -129,7 +145,7 @@ export const Header: React.FC<HeaderProps> = ({
             onToggleFullscreen();
           }}
           title={isFullscreen ? 'Salir de pantalla completa' : 'Modo Pizarra Digital (Pantalla Completa)'}
-          className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+          className="p-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-white transition-colors"
         >
           {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
         </button>
@@ -140,7 +156,7 @@ export const Header: React.FC<HeaderProps> = ({
             soundFx.playClick();
             onOpenTeacherGuide();
           }}
-          className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-colors flex items-center gap-1.5 shadow-md shadow-indigo-600/20"
+          className="px-3 sm:px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-colors flex items-center gap-1.5 shadow-md shadow-indigo-600/20"
         >
           <BookOpen className="w-4 h-4 text-white" />
           <span className="hidden sm:inline">Guía Docente</span>

@@ -348,6 +348,12 @@ export const PRESET_SIMULATIONS: SimulationDef[] = [
           speed: 0.4,
           axis: 'y',
         },
+        parameterModulated: {
+          paramId: 'brillo_solar',
+          property: 'emissive_intensity',
+          minVal: 1.0,
+          maxVal: 3.5,
+        },
         tooltip: 'Centro de gravedad de nuestro sistema',
         explanation:
           'El Sol es una bola gigante de gas supercaliente. Es tan grande que dentro de él cabrían más de un millón de Tierras.',
@@ -1135,6 +1141,12 @@ export const PRESET_SIMULATIONS: SimulationDef[] = [
         scale: [0.9, 1.2, 0.9],
         color: '#0284c7',
         material: 'standard',
+        parameterModulated: {
+          paramId: 'posicion_fulcro',
+          property: 'position_x',
+          minVal: -1.8,
+          maxVal: 1.8,
+        },
         tooltip: 'El pivote de rotación',
         explanation:
           'Es el punto fijo sobre el que se balancea la barra. Si lo acercas a la carga pesada, ¡levantarla será facilísimo!',
@@ -1402,17 +1414,17 @@ export const PRESET_SIMULATIONS: SimulationDef[] = [
     parameters: [
       {
         id: 'densidad_objeto',
-        name: 'Densidad del Objeto',
+        name: 'Densidad del Objeto (Material)',
         unit: 'g/cm³',
         min: 0.2,
         max: 2.5,
         step: 0.1,
         defaultValue: 0.6,
-        description: 'Si la densidad media es menor que la del agua (1 g/cm³), ¡el objeto flota!',
+        description: 'Densidad del material sólido (Madera ~0.5, Hielo ~0.92, Plástico ~1.1, Hierro/Acero ~2.5 g/cm³).',
         stateLabels: {
-          '0.2': 'Muy liviano (como madera o corcho): flota alto 🛶',
-          '0.9': 'Densidad equilibrada: flota al ras del agua ⛵',
-          '1.5': 'Más denso que el agua: se hunde al fondo ⚓',
+          '0.2': 'Muy liviano (madera o corcho): flota alto y ágil 🛶',
+          '0.9': 'Densidad similar al agua: flota al ras de la superficie ⛵',
+          '1.5': 'Material denso (acero/piedra): ¡necesita aire en el casco para flotar! ⚓',
         },
       },
       {
@@ -1423,7 +1435,12 @@ export const PRESET_SIMULATIONS: SimulationDef[] = [
         max: 100,
         step: 10,
         defaultValue: 80,
-        description: 'El aire dentro del barco hace que el peso total dividido por su gran volumen sea menor que el agua.',
+        description: 'El aire dentro del barco reduce su densidad media global: masa total dividida por el gran volumen del casco.',
+        stateLabels: {
+          '0': '0% Aire: Casco macizo o inundado de agua (se hunde como piedra) 🪙',
+          '50': '50% Aire: Barco cargado con mercancía pesada, flota más bajo 🚢',
+          '80': '80% Aire: Casco hueco amplio lleno de aire, máxima flotabilidad 🛳️',
+        },
       },
       {
         id: 'salinidad_agua',
@@ -1433,7 +1450,12 @@ export const PRESET_SIMULATIONS: SimulationDef[] = [
         max: 40,
         step: 5,
         defaultValue: 15,
-        description: 'El agua salada del mar es más densa y empuja con más fuerza hacia arriba que el agua dulce.',
+        description: 'El agua salada del mar es más densa (hasta 1.10 g/cm³) y ejerce mayor empuje hacia arriba que el agua dulce.',
+        stateLabels: {
+          '0': 'Agua dulce de río o lago (densidad: 1.00 g/cm³) 🏞️',
+          '15': 'Agua de mar estándar (densidad: ~1.04 g/cm³) 🌊',
+          '35': 'Agua hiper-salina como el Mar Muerto (densidad: ~1.10 g/cm³) 🧂',
+        },
       },
     ],
     elements: [
@@ -1502,6 +1524,32 @@ export const PRESET_SIMULATIONS: SimulationDef[] = [
         explanation: 'La Tierra tira del barco hacia el fondo. Cuando el Empuje iguala al Peso, ¡el barco flota en perfecto equilibrio!',
         funFact: 'Un clavo de hierro se hunde porque no tiene aire atrapado, pero si aplastas ese mismo hierro en forma de cuenco, flotará.',
         clickable: true,
+      },
+    ],
+    stepGuide: [
+      {
+        title: 'Paso 1: El Barco en Flotación Estable',
+        instruction: 'Observa las dos flechas: la Flecha Roja (Peso hacia abajo) y la Flecha Verde (Empuje del agua hacia arriba) están equilibradas.',
+        suggestedParamState: { densidad_objeto: 0.8, volumen_aire: 80, salinidad_agua: 15 },
+        highlightElementId: 'barco_flotante',
+      },
+      {
+        title: 'Paso 2: ¿Por qué el Acero Flota? (Forma Hueca)',
+        instruction: 'Aumenta la densidad del material a 2.0 g/cm³ (acero). Gracias al 80% de aire dentro del casco, ¡el barco sigue flotando!',
+        suggestedParamState: { densidad_objeto: 2.0, volumen_aire: 80, salinidad_agua: 15 },
+        highlightElementId: 'barco_flotante',
+      },
+      {
+        title: 'Paso 3: ¡Naufragio e Inundación!',
+        instruction: 'Baja el "Aire en el Casco" a 0%. Al perder el aire, la densidad supera al agua y el barco se hunde directo al fondo marino.',
+        suggestedParamState: { densidad_objeto: 2.0, volumen_aire: 0, salinidad_agua: 15 },
+        highlightElementId: 'barco_flotante',
+      },
+      {
+        title: 'Paso 4: El Empuje del Agua Salada',
+        instruction: 'Devuelve el aire a 70% y aumenta la salinidad al 40% (como el Mar Muerto). ¡El agua salada es más densa y eleva el barco aún más alto!',
+        suggestedParamState: { densidad_objeto: 1.2, volumen_aire: 70, salinidad_agua: 40 },
+        highlightElementId: 'superficie_agua',
       },
     ],
     missions: [

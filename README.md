@@ -160,3 +160,168 @@ Para garantizar respuesta instantánea y mínimo consumo de energía en la máqu
    npx vite preview --host 0.0.0.0 --port 3000
    ```
 *(O ejecutar el script automatizado `iniciar_escuela.bat` en Windows o `iniciar_escuela.sh` en Linux).*
+
+---
+
+## 🎨 Arquitectura 3D del Aplicativo: Cómo se Generan las Vistas y Bibliotecas Utilizadas
+
+Este capítulo explica en detalle y con lenguaje didáctico cómo se construyen, animan y renderizan las vistas tridimensionales de las simulaciones científicas en la aplicación.
+
+---
+
+### 1. ¿Qué bibliotecas y tecnologías se utilizan?
+
+El motor gráfico 3D de **SimulaCiencia** se basa en tecnologías abiertas y estándares de la web moderna:
+
+| Tecnología / Biblioteca | Rol en el Aplicativo | ¿Por qué se utiliza? |
+| :--- | :--- | :--- |
+| **WebGL (Web Graphics Library)** | Capa nativa del navegador | API nativa de JavaScript que permite comunicarse directamente con la tarjeta gráfica (GPU) del computador, tablet o celular sin instalar plugins. |
+| **Three.js** (`three`) | Biblioteca central de gráficos 3D | Envoltorio de alto nivel sobre WebGL. Convierte operaciones matemáticas complejas (matrices, shaders, vectores) en conceptos intuitivos como *Escena*, *Cámara*, *Mallas*, *Luces* y *Materiales*. |
+| **Lucide React** (`lucide-react`) | Iconografía vectorial SVG | Iconos nítidos de interfaz de usuario para controles de cámara (rotar, zoom, reiniciar vista), etiquetas de ciencia y paneles de telemetría. |
+| **Canvas API + HTML5** | Contenedor gráfico de alta velocidad | Proporciona el elemento `<canvas>` donde Three.js dibuja a 60 cuadros por segundo (FPS). |
+
+---
+
+### 2. El Pipeline 3D: Los 5 Pilares Fundamentales de Three.js
+
+Para entender cómo se genera cualquier vista 3D en la aplicación, se utiliza la metáfora de un **estudio de cine o teatro**:
+
+```
+      [ 1. La Escena (Scene) ]  <--- Contenedor del escenario
+              │
+      ┌───────┴───────────────┐
+      ▼                       ▼
+ [ 2. Los Objetos ]      [ 3. Las Luces ]
+ (Geometría + Material)    (Sol, Ambiente)
+      │                       │
+      └───────┬───────────────┘
+              │
+              ▼
+    [ 4. La Cámara (Camera) ]   <--- Perspectiva y ángulo de visión
+              │
+              ▼
+    [ 5. El Renderizador (Renderer) ] -> Dibuja en pantalla (<canvas>)
+```
+
+1. **La Escena (`THREE.Scene`)**:
+   - Es el universo tridimensional vacío donde colocamos todos los elementos (planetas, imanes, gotas de agua, barco).
+2. **La Cámara (`THREE.PerspectiveCamera`)**:
+   - Es el ojo del observador. En la aplicación usamos una cámara en perspectiva con campo de visión de $45^\circ$ a $50^\circ$, que simula la visión humana (las cosas lejanas se ven más pequeñas).
+3. **Las Mallas / Objetos (`THREE.Mesh`)**:
+   - Un objeto 3D visible nace de la combinación de dos cosas:
+     - **Geometría (`Geometry`)**: La forma matemática de alambre (ej. esfera, cubo, cilindro, cono, toroide).
+     - **Material (`Material`)**: Cómo luce su superficie (color, brillo, transparencia, reflejos, emisión de luz propia).
+4. **La Iluminación (`THREE.Light`)**:
+   - Sin luz, todo se vería negro. La app combina:
+     - `THREE.AmbientLight`: Ilumina suavemente todo el escenario para evitar sombras totalmente negras.
+     - `THREE.DirectionalLight`: Luz con dirección (como los rayos paralelos del Sol) que proyecta relieve y sombras suaves.
+5. **El Renderizador (`THREE.WebGLRenderer`)**:
+   - Toma la escena desde el punto de vista de la cámara y genera la imagen final píxel por píxel en el elemento `<canvas>`.
+
+---
+
+### 3. Explicación Simple: Cómo usar Three.js en 4 Pasos
+
+Si deseas crear tu propio experimento 3D básico en JavaScript o TypeScript, estos son los pasos mínimos:
+
+#### Paso 1: Crear la Escena, Cámara y Renderizador
+```typescript
+import * as THREE from 'three';
+
+// 1. Crear el escenario
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#0f172a'); // Fondo azul espacial
+
+// 2. Crear la cámara (Campo de visión, relación de aspecto, plano cercano, plano lejano)
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 5, 12); // Elevar la cámara y alejarla en Z
+camera.lookAt(0, 0, 0);       // Apuntar al centro del mundo
+
+// 3. Crear el motor de renderizado y asociarlo a la pantalla
+const renderer = new THREE.WebGLRenderer({ antialias: true }); // antialias suaviza los bordes
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+```
+
+#### Paso 2: Agregar Iluminación
+```typescript
+// Luz ambiental general
+const luzAmbiente = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(luzAmbiente);
+
+// Luz del sol dirigida
+const luzSol = new THREE.DirectionalLight(0xffffff, 1.2);
+luzSol.position.set(10, 20, 10);
+scene.add(luzSol);
+```
+
+#### Paso 3: Crear Geometrías y Materiales (Nuestros Modelos)
+En la aplicación, todos los modelos se generan proceduralmente sin archivos pesados externos:
+
+```typescript
+// Ejemplo A: Una Tierra (Esfera)
+const geoEsfera = new THREE.SphereGeometry(1.5, 32, 32); // Radio 1.5, resolución 32 segmentos
+const matTierra = new THREE.MeshStandardMaterial({
+  color: 0x3b82f6,      // Azul brillante
+  roughness: 0.4,       // Rugosidad media
+  metalness: 0.1,
+});
+const tierra = new THREE.Mesh(geoEsfera, matTierra);
+scene.add(tierra);
+
+// Ejemplo B: Un Imán Bipolar (Cajas compuestas)
+const grupoIman = new THREE.Group();
+
+const geoPolo = new THREE.BoxGeometry(0.8, 0.6, 1.6);
+const matNorte = new THREE.MeshStandardMaterial({ color: 0xef4444 }); // Rojo
+const matSur = new THREE.MeshStandardMaterial({ color: 0x3b82f6 });   // Azul
+
+const poloNorte = new THREE.Mesh(geoPolo, matNorte);
+poloNorte.position.x = -0.4;
+
+const poloSur = new THREE.Mesh(geoPolo, matSur);
+poloSur.position.x = 0.4;
+
+grupoIman.add(poloNorte);
+grupoIman.add(poloSur);
+scene.add(grupoIman);
+```
+
+#### Paso 4: El Bucle de Animación (`requestAnimationFrame`)
+Para que las figuras se muevan, giren u ondeen de acuerdo a las leyes físicas:
+
+```typescript
+function animar() {
+  requestAnimationFrame(animar);
+
+  // 1. Modificar posiciones o rotaciones
+  tierra.rotation.y += 0.01; // Rotación sobre su propio eje
+
+  // 2. Volver a dibujar la escena
+  renderer.render(scene, camera);
+}
+
+// Iniciar el ciclo
+animar();
+```
+
+---
+
+### 4. Técnicas Especiales Utilizadas en SimulaCiencia
+
+Nuestra implementación en `src/components/ThreeSimulationCanvas.tsx` incluye técnicas avanzadas adaptadas a la educación primaria:
+
+1. **Sistemas de Partículas en GPU (`THREE.Points`)**:
+   - Usado para la lluvia (`ciclo-agua`), las burbujas de oxígeno (`fotosintesis`), la lava incandescente (`volcan-tierra`) y el polvo estelar (`sistema-solar`).
+   - Cada gota o burbuja almacena su posición $(x, y, z)$ en un búfer (`Float32Array`). En cada fotograma, sus velocidades se recalculan según los controles deslizantes (ej. más lluvia = mayor velocidad y densidad).
+
+2. **Control Orbital Táctil y con Ratón (Orbit Controls Personalizado)**:
+   - Permite a los niños arrastrar con el dedo en tablets o con el ratón en la computadora para rotar $360^\circ$ alrededor del experimento.
+   - Utiliza coordenadas esféricas $(\text{radio}, \theta, \phi)$ convertidas a cartesianas $(x, y, z)$ sin librerías pesadas externas.
+
+3. **Modulación de Física en Tiempo Real por Parámetros**:
+   - Cuando el usuario mueve un control deslizante (ej. *Densidad del Barco*, *Salinidad del Agua*, *Posición del Fulcro* o *Temperatura*), las mallas 3D actualizan instantáneamente su flotabilidad, balanceo de olas, emisión de luz o ángulo de palanca mediante fórmulas físicas directas.
+
+4. **HUD de Telemetría Gráfica en Vivo**:
+   - Superposición semitransparente que extrae los cálculos de la simulación en tiempo real y muestra diagramas interactivos (vector de empuje hidrostático, torques y ventaja mecánica, espectro cromático a $42^\circ$, etc.).
+
