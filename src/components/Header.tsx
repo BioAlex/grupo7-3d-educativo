@@ -8,7 +8,6 @@ import {
   Camera,
   Layers,
   ChevronDown,
-  Download,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -18,7 +17,6 @@ interface HeaderProps {
   selectedGrade: string;
   onSelectGrade: (grade: string) => void;
   onOpenTeacherGuide: () => void;
-  onOpenOfflineModal: () => void;
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
   onTakeSnapshot: () => void;
@@ -31,7 +29,6 @@ export const Header: React.FC<HeaderProps> = ({
   selectedGrade,
   onSelectGrade,
   onOpenTeacherGuide,
-  onOpenOfflineModal,
   isFullscreen,
   onToggleFullscreen,
   onTakeSnapshot,
@@ -147,19 +144,6 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <BookOpen className="w-4 h-4 text-white" />
           <span className="hidden sm:inline">Guía Docente</span>
-        </button>
-
-        {/* Offline Download / LAN Export */}
-        <button
-          onClick={() => {
-            soundFx.playClick();
-            onOpenOfflineModal();
-          }}
-          className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs transition-colors flex items-center gap-1.5 shadow-md shadow-emerald-600/25"
-          title="Descargar paquete completo para usar en computadoras del colegio sin internet"
-        >
-          <Download className="w-4 h-4 text-white" />
-          <span>Descargar Offline (.ZIP)</span>
         </button>
       </div>
     </header>

@@ -578,14 +578,25 @@ export const ThreeSimulationCanvas: React.FC<ThreeSimulationCanvasProps> = ({
     }
   };
 
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    const zoomSpeed = 0.015;
-    sphericalCoordsRef.current.radius = Math.max(
-      3.5,
-      Math.min(50, sphericalCoordsRef.current.radius + e.deltaY * zoomSpeed)
-    );
-  };
+  // Native non-passive wheel listener to allow preventDefault safely without browser warnings
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const onWheelNative = (e: WheelEvent) => {
+      e.preventDefault();
+      const zoomSpeed = 0.015;
+      sphericalCoordsRef.current.radius = Math.max(
+        3.5,
+        Math.min(50, sphericalCoordsRef.current.radius + e.deltaY * zoomSpeed)
+      );
+    };
+
+    container.addEventListener('wheel', onWheelNative, { passive: false });
+    return () => {
+      container.removeEventListener('wheel', onWheelNative);
+    };
+  }, []);
 
   const handleClick = (e: React.MouseEvent) => {
     if (!containerRef.current || !cameraRef.current || !sceneRef.current) return;
@@ -630,11 +641,10 @@ export const ThreeSimulationCanvas: React.FC<ThreeSimulationCanvasProps> = ({
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full select-none overflow-hidden bg-slate-950 cursor-grab active:cursor-grabbing"
+      className="relative w-full h-full select-none overflow-hidden bg-slate-950 cursor-grab active:cursor-grabbing touch-none"
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       onPointerMove={handlePointerMove}
-      onWheel={handleWheel}
       onClick={handleClick}
     >
       <canvas ref={canvasRef} className="w-full h-full block" />

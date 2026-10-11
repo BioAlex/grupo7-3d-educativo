@@ -11,7 +11,6 @@ import { SimulationControls } from './components/SimulationControls';
 import { InspectorModal } from './components/InspectorModal';
 import { MissionsPanel } from './components/MissionsPanel';
 import { TeacherGuideModal } from './components/TeacherGuideModal';
-import { OfflineDownloadModal } from './components/OfflineDownloadModal';
 import { Header } from './components/Header';
 import { soundFx } from './utils/audio';
 import {
@@ -43,7 +42,6 @@ export default function App() {
   const [selectedGrade, setSelectedGrade] = useState<string>('all');
   const [activeSideTab, setActiveSideTab] = useState<'controls' | 'missions' | 'info'>('controls');
   const [isTeacherGuideOpen, setIsTeacherGuideOpen] = useState<boolean>(false);
-  const [isOfflineModalOpen, setIsOfflineModalOpen] = useState<boolean>(false);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [snapshotFlash, setSnapshotFlash] = useState<boolean>(false);
 
@@ -118,7 +116,6 @@ export default function App() {
         selectedGrade={selectedGrade}
         onSelectGrade={setSelectedGrade}
         onOpenTeacherGuide={() => setIsTeacherGuideOpen(true)}
-        onOpenOfflineModal={() => setIsOfflineModalOpen(true)}
         isFullscreen={isFullscreen}
         onToggleFullscreen={handleToggleFullscreen}
         onTakeSnapshot={handleTakeSnapshot}
@@ -379,12 +376,6 @@ export default function App() {
         simulation={activeSimulation}
         isOpen={isTeacherGuideOpen}
         onClose={() => setIsTeacherGuideOpen(false)}
-      />
-
-      {/* Offline LAN Download Modal */}
-      <OfflineDownloadModal
-        isOpen={isOfflineModalOpen}
-        onClose={() => setIsOfflineModalOpen(false)}
       />
     </div>
   );
